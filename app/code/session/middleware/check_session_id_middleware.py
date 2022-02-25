@@ -14,15 +14,7 @@ class SessionIdMiddleware(MiddlewareHandler):
         self.router_service = router_service
         self.session_service = session_service
 
-        self.routes = [
-            'client.session.info',
-            'client.session.logout',
-            'resources.tag.create',
-            'resources.tag.delete',
-            'resources.user.delete',
-            'resources.post.create',
-            'resources.post.delete'
-        ]
+        self.routes = []
 
     async def call(self, request_name: str, request: web.Request, handler):
         if request_name in self.routes:

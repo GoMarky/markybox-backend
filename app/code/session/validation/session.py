@@ -1,28 +1,21 @@
-CREATE_USER_SCHEMA = {
+CREATE_SESSION_SCHEMA = {
     "type": "object",
     "properties": {
-        "name": {
-            "type": "string",
-            "minLength": 2
+        "removeable": {
+            "type": "boolean",
         },
-        "email": {
+        "author": {
             "type": "string",
-            "minLength": 7
-        },
-        "password": {
-            "type": "string"
         }
     },
     "required": [
-        "name",
-        "email",
-        "password"
+        "author",
+        "removeable"
     ],
     "additionalProperties": False
 }
 
-
-DELETE_USER_SCHEMA = {
+DELETE_SESSION_SCHEMA = {
     "type": "object",
     "properties": {
         "id": {

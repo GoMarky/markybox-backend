@@ -8,12 +8,7 @@ from app.platform.router.router_service import RouterService
 from app.platform.middleware.middleware_service import MiddlewareService
 
 from app.code.session.session_service import SessionService
-from app.code.tag.tag_service import TagService
 from app.platform.database.database_service import DatabaseService
-from app.code.user.user_service import UserService
-
-from app.code.category.category_service import CategoryService
-from app.code.post.post_service import PostService
 
 __all__ = ['instantiation_service']
 
@@ -46,19 +41,3 @@ services.set('database_service', database_service)
 # session service
 session_service = SessionService(database_service)
 services.set('session_service', session_service)
-
-# tag service
-tag_service = TagService(database_service)
-services.set('tag_service', tag_service)
-
-# category service
-category_service = CategoryService(database_service)
-services.set('category_service', category_service)
-
-# post service
-post_service = PostService(database_service, category_service, tag_service)
-services.set('post_service', post_service)
-
-# user service
-user_service = UserService(database_service)
-services.set('user_service', user_service)

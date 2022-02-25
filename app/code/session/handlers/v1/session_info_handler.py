@@ -1,9 +1,9 @@
 from app.platform.router.router_handler import RouteHandler
 from app.platform.log.log_service import LogService
 from aiohttp import web, hdrs
-from app.platform.router.common import send_success_response, send_unexpected_error_response, send_not_found_response
+from app.platform.router.common import send_unexpected_error_response, send_not_found_response
 
-from app.db import sessions, users
+from app.db import sessions
 from app.code.session.session_service import SessionService
 from app.platform.router.router_service import RouterService
 
@@ -44,13 +44,4 @@ class SessionInfoHandler(RouteHandler):
         for session in session_result:
             session = dict(session)
 
-            client_id = session['client_id']
-
-            user_result = await conn.execute(users.select().where(users.c.client_id == client_id))
-
-            for user in user_result:
-                user = dict(user)
-
-                transformed_session = self.session_service.transform_session(session, user)
-
-                return self.router_service.send_success_response(self.name, transformed_session)
+            return self.router_service.send_success_response(self.name, session)
