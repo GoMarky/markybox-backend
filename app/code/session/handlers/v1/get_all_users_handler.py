@@ -8,30 +8,31 @@ from app.code.session.session_service import SessionService
 from app.platform.router.router_service import RouterService
 
 
-class SessionInfoHandler(RouteHandler):
-    path = '/session/info/'
+class GetAllUsersHandler(RouteHandler):
+    path = '/users/'
 
     def __init__(self, log_service: LogService, session_service: SessionService, router_service: RouterService):
         super().__init__(log_service)
 
-        self.path = SessionInfoHandler.path
-        self.request_type = hdrs.METH_POST
+        self.path = GetAllUsersHandler.path
+        self.request_type = hdrs.METH_GET
 
         self.session_service = session_service
         self.router_service = router_service
 
-        self.name = 'client.session.info'
+        self.name = 'client.users.all'
 
     async def handler(self, request: web.Request) -> web.Response:
-        body = await request.json()
-
-        session_id = body['sessionId']
-
         async with request.app['db'].acquire() as connection:
-            return
+            all_users = []
+
+            users_result = await connection.execute(
+                '''SELECT users.id, users.email FROM users ORDER BY id;''')
+
+            for user in users_result:
+                all_users.append(dict(user))
+
+        return self.router_service.send_success_response(self.name, all_users)
 
     async def do_handle(self, session_result, conn) -> web.Response:
-        for session in session_result:
-            session = dict(session)
-
-            return self.router_service.send_success_response(self.name, session)
+        return

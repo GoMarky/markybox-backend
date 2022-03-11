@@ -3,7 +3,7 @@ drop schema markybox cascade;
 create schema if not exists markybox;
 
 
-CREATE TABLE if not exists markybox.sessions (
+CREATE TABLE if not exists markybox.users (
   author        string      NOT NULL,
   session_id    TEXT        NOT NULL unique,
   data          TEXT

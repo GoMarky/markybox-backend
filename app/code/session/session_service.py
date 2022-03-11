@@ -1,6 +1,6 @@
 from app.platform.instantiation.disposable import Disposable
 from aiohttp import web
-from app.db import sessions
+from app.db import users
 from app.base.errors import DBRecordNotFoundError
 from app.base.uuid import generate_id
 from app.platform.database.database_service import DatabaseService
@@ -15,31 +15,15 @@ class SessionService(Disposable):
         removeable: bool = options.get('removeable')
 
         async with request.app['db'].acquire() as conn:
-            has_session_result = await conn.execute(sessions.select().where(sessions.c.client_id == uuid))
-
-            session_id = generate_id(20)
-
-            await conn.execute(sessions.insert().values({
-                'session_id': session_id,
-            }))
+            return
 
     async def get_session_by_id(self, session_id: str):
         async with self.database_service.instance.acquire() as connection:
-            session = await connection.execute(
-                sessions.select().where(sessions.c.session_id == session_id)
-            )
-
-            if session.rowcount == 0:
-                raise DBRecordNotFoundError('Session with id ' + session_id + ' was not found.')
-
-            return dict(await session.fetchone())
+            return
 
     async def delete_session_by_id(self, session_id: str):
         async with self.database_service.instance.acquire() as connection:
-            result = await connection.execute(sessions.delete().where(sessions.c.session_id == session_id))
-
-            if result.rowcount == 0:
-                raise DBRecordNotFoundError('Session with id ' + session_id + ' was not found.')
+            return
 
     def transform_session(self, session, user):
         new_session = dict()
