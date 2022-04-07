@@ -8,7 +8,7 @@ from app.code.session.validation.session import CREATE_SESSION_SCHEMA
 
 
 class SessionLoginHandler(RouteHandler):
-    path = '/session/create/'
+    path = '/session/login/'
 
     def __init__(self, log_service: LogService, router_service: RouterService, session_service: SessionService):
         super().__init__(log_service)
@@ -20,7 +20,7 @@ class SessionLoginHandler(RouteHandler):
         self.log_service = log_service
         self.session_service = session_service
 
-        self.name = 'client.session.create'
+        self.name = 'client.session.login'
 
     async def handler(self, request: web.Request) -> web.Response:
         body = await request.json()
@@ -28,7 +28,9 @@ class SessionLoginHandler(RouteHandler):
         try:
             validate(body, CREATE_SESSION_SCHEMA)
 
-            await self.session_service.create_session(request, body)
+            session = await self.session_service.create_session(request, body)
+
+            self.router_service.send_success_response(self.name, session)
 
         except JSONValidationError as error:
             return self.router_service.send_bad_request_response(self.name, error.message)

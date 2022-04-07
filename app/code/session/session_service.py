@@ -11,8 +11,13 @@ class SessionService(Disposable):
         self.database_service = database_service
 
     async def create_session(self, request: web.Request, options: dict):
-        author: str = options.get('author')
-        removeable: bool = options.get('removeable')
+        email: str = options.get('email')
+        hashed_password: str = options.get('password')
+
+        normalized_password: str = hashed_password[::-1]
+
+        print(email)
+        print(normalized_password)
 
         async with request.app['db'].acquire() as conn:
             return
@@ -25,7 +30,7 @@ class SessionService(Disposable):
         async with self.database_service.instance.acquire() as connection:
             return
 
-    def transform_session(self, session, user):
+    def transform_session(self, session):
         new_session = dict()
 
         return new_session

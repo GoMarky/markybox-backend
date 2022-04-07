@@ -1,16 +1,16 @@
 CREATE_SESSION_SCHEMA = {
     "type": "object",
     "properties": {
-        "removeable": {
-            "type": "boolean",
+        "email": {
+            "type": "string",
         },
-        "author": {
+        "password": {
             "type": "string",
         }
     },
     "required": [
-        "author",
-        "removeable"
+        "email",
+        "password"
     ],
     "additionalProperties": False
 }
@@ -18,7 +18,7 @@ CREATE_SESSION_SCHEMA = {
 DELETE_SESSION_SCHEMA = {
     "type": "object",
     "properties": {
-        "id": {
+        "sessionId": {
             "type": "number",
         },
     },

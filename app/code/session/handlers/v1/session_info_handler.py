@@ -23,12 +23,15 @@ class SessionInfoHandler(RouteHandler):
         self.name = 'client.session.info'
 
     async def handler(self, request: web.Request) -> web.Response:
-        body = await request.json()
+        try:
+            body: dict = await request.json()
 
-        session_id = body['sessionId']
+            sessionId = body.get('sessionId')
 
-        async with request.app['db'].acquire() as connection:
-            return
+            return self.router_service.send_not_found_response(self.name,
+                                                               "Session with id" + sessionId + " was not found")
+        except RuntimeError as error:
+            return self.router_service.send_unexpected_error_response(self.name, "")
 
     async def do_handle(self, session_result, conn) -> web.Response:
         for session in session_result:
