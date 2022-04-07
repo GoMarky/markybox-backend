@@ -25,16 +25,48 @@ class SessionInfoHandler(RouteHandler):
     async def handler(self, request: web.Request) -> web.Response:
         try:
             body: dict = await request.json()
+            session_id = body.get('sessionId')
 
-            sessionId = body.get('sessionId')
-
-            return self.router_service.send_not_found_response(self.name,
-                                                               "Session with id" + sessionId + " was not found")
+            return await self.do_handle(request, session_id)
         except RuntimeError as error:
             return self.router_service.send_unexpected_error_response(self.name, "")
 
-    async def do_handle(self, session_result, conn) -> web.Response:
-        for session in session_result:
-            session = dict(session)
+    async def do_handle(self, request, session_id) -> web.Response:
+        async with request.app['db'].acquire() as connection:
+            sql: str = '''
+            select session_id, user, email, 
+            array_agg(ARRAY[notes.title, notes.notes,notes.created_at::text,notes.updated_at::text]) AS user_notes
+            from session, users, notes 
+            where users.user_id=session.user_id AND users.user_id=notes.user_id AND session_id='{session_id}'
+            group by session.session_id, users.email;
+            '''.format(session_id=session_id)
 
-            return self.router_service.send_success_response(self.name, session)
+            result = await connection.execute(sql)
+
+            if result.rowcount == 0:
+                return self.router_service.send_not_found_response(self.name, "")
+
+            arr = [dict(row) for row in result]
+            user_notes = []
+            body: dict = arr.pop()
+            raw_notes = body.get('user_notes')
+
+            for note in raw_notes:
+                user_note = dict()
+
+                title = note[0]
+                data = note[1]
+                created_at = note[2]
+                updated_at = note[3]
+
+                user_note['title'] = title
+                user_note['data'] = data
+                user_note['createdAt'] = created_at
+                user_note['updatedAt'] = updated_at
+
+                user_notes.append(user_note)
+
+            body['notes'] = user_notes
+            body.pop('user_notes')
+
+            return self.router_service.send_success_response(self.name, body)
