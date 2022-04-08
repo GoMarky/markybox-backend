@@ -28,7 +28,7 @@ class SubscribeMessageHandler(RouteHandler):
                 if msg.data == 'close':
                     await ws.close()
                 else:
-                    await ws.send_str(msg.data + '/answer')
+                    await self.do_handle(ws, msg)
             elif msg.type == WSMsgType.ERROR:
                 print('ws connection closed with exception %s' %
                       ws.exception())
@@ -36,3 +36,11 @@ class SubscribeMessageHandler(RouteHandler):
         print('websocket connection closed')
 
         return ws
+
+    async def do_handle(self, ws: web.WebSocketResponse, msg):
+        response: dict = dict()
+        response['ok'] = True
+
+        print(msg.data)
+
+        await ws.send_json(response)
