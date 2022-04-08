@@ -1,5 +1,5 @@
 aiobotocore==0.9.4
-aiohttp==3.7.4
+aiohttp==3.8.1
 aiopg==0.15.0
 async-timeout==3.0.0
 attrs==18.2.0
@@ -21,3 +21,4 @@ yarl==1.2.6
 jsonify==0.5
 aiohttp_cors==0.7.0
 aiohttp-middlewares==1.1.
+python-socketio==5.5.2

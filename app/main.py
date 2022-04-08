@@ -10,6 +10,8 @@ from app.platform.middleware.middleware_service import MiddlewareService
 from app.code.session.session_service import SessionService
 from app.platform.database.database_service import DatabaseService
 
+from app.code.socket.socket_service import SocketService
+
 __all__ = ['instantiation_service']
 
 # Создаем коллекцию сервисов
@@ -41,3 +43,6 @@ services.set('database_service', database_service)
 # session service
 session_service = SessionService(database_service)
 services.set('session_service', session_service)
+
+socket_service = SocketService(database_service)
+services.set('socket_service', socket_service)
