@@ -1,5 +1,5 @@
 aiobotocore==0.9.4
-aiohttp==3.8.1
+aiohttp==3.7.4
 aiopg==0.15.0
 async-timeout==3.0.0
 attrs==18.2.0

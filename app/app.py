@@ -1,4 +1,4 @@
-from aiohttp import web
+from aiohttp import web, WSMsgType
 from app.base.database import init_pg, close_pg
 from configuration import DB_CONFIG
 import aiohttp_cors
@@ -95,7 +95,6 @@ def create_app():
     database_service.init(app)
 
     return app
-
 
 def setup_routes(app, routes: List[RouteHandler]):
     for route in routes:
