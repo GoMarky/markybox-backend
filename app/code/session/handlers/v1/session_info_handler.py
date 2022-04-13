@@ -51,6 +51,8 @@ class SessionInfoHandler(RouteHandler):
             body: dict = arr.pop()
             raw_notes = body.get('user_notes')
 
+            print(body)
+
             for note in raw_notes:
                 user_note = dict()
 
