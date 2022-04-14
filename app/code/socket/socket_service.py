@@ -8,11 +8,41 @@ class SocketService(Disposable):
         self.database_service = database_service
 
         self.rooms = {}
-        self.clients = set()
 
-    def remove_client(self, ws: web.WebSocketResponse):
-        print("Remove client with reason " + ws.reason)
-        self.clients.remove(ws)
+    def get_client_by_connection(self, ws: web.WebSocketResponse):
+        for room_id, room_set in self.rooms.items():
+            for client in room_set:
+                connection = client[1]
+
+                print(client)
+
+                if ws == connection:
+                    return room_id, client
+
+        return None
+
+    async def remove_client(self, ws: web.WebSocketResponse):
+        result = self.get_client_by_connection(ws)
+
+        if result is None:
+            return
+
+        room_id, client = result
+        user_name = client[0]
+
+        room_set = self.rooms.get(room_id)
+        room_set.remove(client)
+
+        response = dict()
+        response['type'] = 'leave_room'
+        response['data'] = {
+            'user_name': user_name,
+            'text': 'User ' + user_name + ' left room.'
+        }
+
+        for room_client in room_set:
+            conn = room_client[1]
+            await conn.send_json(response)
 
     async def on_create_or_enter_room(self, ws: web.WebSocketResponse, user_name: str, note_id: str):
         if self.rooms.get(note_id):
@@ -22,38 +52,39 @@ class SocketService(Disposable):
 
     async def enter_room(self, ws: web.WebSocketResponse, user_name: str, note_id: str):
         response = dict()
-
         response['type'] = 'enter_room'
         response['data'] = {
-            'user_name': user_name
+            'user_name': user_name,
+            'text': 'User ' + user_name + ' entered room.'
         }
 
+        for client in self.rooms.get(note_id):
+            conn = client[1]
+
+            await conn.send_json(response)
+
         room_set: set = self.rooms.get(note_id)
-        room_set.add(user_name)
+        room_set.add((user_name, ws))
 
-        for client in self.clients:
-            await client.send_json(response)
-
-        await ws.send_json(response)
+        return await ws.send_json({
+            'type': 'info',
+            'data': {
+                'text': 'You entered room ' + note_id + '.'
+            }
+        })
 
     async def create_room(self, ws: web.WebSocketResponse, user_name: str, note_id: str):
         response = dict()
-
         response['type'] = 'create_room'
         response['data'] = {
             'note_id': note_id
         }
 
         new_set = set()
-
-        self.clients.add(ws)
-        new_set.add(user_name)
+        new_set.add((user_name, ws))
         self.rooms[note_id] = new_set
 
         await ws.send_json(response)
 
-    async def leave_room(self, ws: web.WebSocketResponse, user_name: str, note_id: str):
-        room_set: set = self.rooms.get(note_id)
-
-        room_set.remove(user_name)
-        self.clients.remove(ws)
+    async def leave_room(self, ws: web.WebSocketResponse):
+        return await self.remove_client(ws)

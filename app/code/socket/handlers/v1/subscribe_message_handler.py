@@ -31,16 +31,12 @@ class SubscribeMessageHandler(RouteHandler):
             async for msg in ws:
                 if msg.type == WSMsgType.TEXT:
                     await self.on_message(ws, msg.json())
-                elif msg.type == WSMsgType.CLOSE:
-                    await self.socket_service.remove_client(ws)
-                elif msg.type == WSMsgType.CLOSED:
-                    await self.socket_service.remove_client(ws)
                 elif msg.type == WSMsgType.ERROR:
                     await self.socket_service.remove_client(ws)
         except CancelledError:
-            self.socket_service.remove_client(ws)
+            await self.socket_service.remove_client(ws)
         finally:
-            self.socket_service.remove_client(ws)
+            await self.socket_service.remove_client(ws)
             return ws
 
     async def on_message(self, ws: web.WebSocketResponse, message: dict):
@@ -51,7 +47,7 @@ class SubscribeMessageHandler(RouteHandler):
         if command_type == 'enter_room':
             return await self.socket_service.on_create_or_enter_room(ws, user_name, note_id)
         if command_type == 'leave_room':
-            return await self.socket_service.leave_room(user_name, note_id)
+            return await self.socket_service.leave_room(ws)
 
         return await ws.send_json(
             {'type': 'error', 'data': {'message': 'Unrecognized command_type received ' + command_type}})
