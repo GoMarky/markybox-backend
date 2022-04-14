@@ -1,15 +1,17 @@
 from app.platform.router.router_handler import RouteHandler
 from app.platform.log.log_service import LogService
-from aiohttp import web, hdrs, WSMsgType, WSMessage
+from aiohttp import web, hdrs, WSMsgType
+from asyncio import CancelledError
 from app.code.session.session_service import SessionService
 from app.platform.router.router_service import RouterService
-import json
+from app.code.socket.socket_service import SocketService
 
 
 class SubscribeMessageHandler(RouteHandler):
     path = '/subscribe/'
 
-    def __init__(self, log_service: LogService, session_service: SessionService, router_service: RouterService):
+    def __init__(self, log_service: LogService, session_service: SessionService, router_service: RouterService,
+                 socket_service: SocketService):
         super().__init__(log_service)
 
         self.path = SubscribeMessageHandler.path
@@ -17,6 +19,7 @@ class SubscribeMessageHandler(RouteHandler):
 
         self.session_service = session_service
         self.router_service = router_service
+        self.socket_service = socket_service
 
         self.name = 'client.socket.subscribe'
 
@@ -24,14 +27,21 @@ class SubscribeMessageHandler(RouteHandler):
         ws = web.WebSocketResponse()
         await ws.prepare(request)
 
-        async for msg in ws:
-            if msg.type == WSMsgType.TEXT:
-                if msg.data == 'close':
-                    await ws.close()
-                else:
+        try:
+            async for msg in ws:
+                if msg.type == WSMsgType.TEXT:
                     await self.on_message(ws, msg.json())
-
-        return ws
+                elif msg.type == WSMsgType.CLOSE:
+                    await self.socket_service.remove_client(ws)
+                elif msg.type == WSMsgType.CLOSED:
+                    await self.socket_service.remove_client(ws)
+                elif msg.type == WSMsgType.ERROR:
+                    await self.socket_service.remove_client(ws)
+        except CancelledError:
+            self.socket_service.remove_client(ws)
+        finally:
+            self.socket_service.remove_client(ws)
+            return ws
 
     async def on_message(self, ws: web.WebSocketResponse, message: dict):
         command_type = message.get('type')
@@ -39,16 +49,9 @@ class SubscribeMessageHandler(RouteHandler):
         note_id = message.get('note_nanoid')
 
         if command_type == 'enter_room':
-            return await self.on_enter_room(ws, user_name, note_id)
+            return await self.socket_service.on_create_or_enter_room(ws, user_name, note_id)
+        if command_type == 'leave_room':
+            return await self.socket_service.leave_room(user_name, note_id)
 
-    async def on_enter_room(self, ws: web.WebSocketResponse, user_name: str, note_id: str):
-        response = dict()
-
-        response['type'] = 'enter_room'
-        response['data'] = {
-            'user_name': user_name
-        }
-
-        print('User ' + user_name + 'entered room ' + note_id)
-
-        await ws.send_json(response)
+        return await ws.send_json(
+            {'type': 'error', 'data': {'message': 'Unrecognized command_type received ' + command_type}})

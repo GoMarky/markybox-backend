@@ -13,6 +13,6 @@ class LogMiddleware(MiddlewareHandler):
         ]
 
     async def call(self, request_name: str, request: web.Request, handler):
-        self.log_service.info('LogMiddleware - request ' + request_name + ' called.')
+        # self.log_service.info('LogMiddleware - request ' + request_name + ' called.')
 
         return await handler(request)
