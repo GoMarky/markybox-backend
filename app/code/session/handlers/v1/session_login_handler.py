@@ -3,7 +3,7 @@ from app.platform.log.log_service import LogService
 from aiohttp import web, hdrs
 from app.platform.router.router_service import RouterService
 from app.code.session.session_service import SessionService
-from jsonschema import validate, ValidationError as JSONValidationError
+from jsonschema import validate, ValidationError
 from app.code.session.validation.session import CREATE_SESSION_SCHEMA
 
 
@@ -28,11 +28,11 @@ class SessionLoginHandler(RouteHandler):
         try:
             validate(body, CREATE_SESSION_SCHEMA)
 
-            session = await self.session_service.create_session(request, body)
+            result = await self.session_service.create_session(body)
 
-            self.router_service.send_success_response(self.name, session)
+            self.router_service.send_success_response(self.name, result)
 
-        except JSONValidationError as error:
+        except ValidationError as error:
             return self.router_service.send_bad_request_response(self.name, error.message)
 
         return self.router_service.send_not_found_response(self.name, 'Session not found')

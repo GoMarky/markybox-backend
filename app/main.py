@@ -42,7 +42,7 @@ database_service = DatabaseService()
 services.set('database_service', database_service)
 
 # session service
-session_service = SessionService(database_service)
+session_service = SessionService(database_service, router_service)
 services.set('session_service', session_service)
 
 socket_service = SocketService(database_service)

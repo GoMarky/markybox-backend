@@ -25,15 +25,13 @@ class CreateNoteHandler(RouteHandler):
         try:
             body = await request.json()
 
-            print(body)
+            validate(body, CREATE_NOTE_SCHEMA)
 
-            validate({"sessionId": body.get('sessionId')}, CREATE_NOTE_SCHEMA)
-
-            return await self.do_handle(request, body)
+            return await self.do_handle(body)
         except ValidationError as error:
             return self.router_service.send_bad_request_response(self.name, error.message)
 
-    async def do_handle(self, request: web.Request, body: dict) -> web.Response:
-        result = await self.note_service.create_note(request, body)
+    async def do_handle(self, body: dict) -> web.Response:
+        result = await self.note_service.create_note(body)
 
         return self.router_service.send_success_response(self.name, result)

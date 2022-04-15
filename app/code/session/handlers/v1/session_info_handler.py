@@ -3,6 +3,7 @@ from app.platform.log.log_service import LogService
 from aiohttp import web, hdrs
 from app.code.session.session_service import SessionService
 from app.platform.router.router_service import RouterService
+from app.base.errors import DBRecordNotFoundError
 
 
 class SessionInfoHandler(RouteHandler):
@@ -22,51 +23,18 @@ class SessionInfoHandler(RouteHandler):
     async def handler(self, request: web.Request) -> web.Response:
         try:
             body: dict = await request.json()
-            session_id = body.get('sessionId')
+            session_id: str = body.get('sessionId')
 
-            return await self.do_handle(request, session_id)
+            return await self.do_handle(session_id)
         except RuntimeError as error:
             return self.router_service.send_unexpected_error_response(self.name, "")
 
-    async def do_handle(self, request, session_id) -> web.Response:
-        async with request.app['db'].acquire() as connection:
-            sql: str = '''
-            select session_id, user_name, email, 
-            array_agg(ARRAY[notes.title, notes.notes,notes.created_at::text,notes.updated_at::text]) AS user_notes
-            from session, users, notes 
-            where users.user_id=session.user_id AND users.user_id=notes.user_id AND session_id='{session_id}'
-            group by session.session_id, users.email, users.user_name;
-            '''.format(session_id=session_id)
+    async def do_handle(self, session_id: str) -> web.Response:
+        try:
+            result = await self.session_service.get_session_by_id(session_id)
 
-            result = await connection.execute(sql)
+            print(result)
 
-            if result.rowcount == 0:
-                return self.router_service.send_not_found_response(self.name,
-                                                                   "User with session_id " + session_id + ' not found')
-
-            arr = [dict(row) for row in result]
-            user_notes = []
-            body: dict = arr.pop()
-            raw_notes = body.get('user_notes')
-            user_name = body.pop('user_name')
-
-            for note in raw_notes:
-                user_note = dict()
-
-                title = note[0]
-                data = note[1]
-                created_at = note[2]
-                updated_at = note[3]
-
-                user_note['title'] = title
-                user_note['data'] = data
-                user_note['createdAt'] = created_at
-                user_note['updatedAt'] = updated_at
-
-                user_notes.append(user_note)
-
-            body['notes'] = user_notes
-            body['user'] = user_name
-            body.pop('user_notes')
-
-            return self.router_service.send_success_response(self.name, body)
+            return self.router_service.send_success_response(self.name, result)
+        except DBRecordNotFoundError as error:
+            return self.router_service.send_not_found_response(self.name, error.message)
