@@ -109,7 +109,15 @@ class SessionService(Disposable):
 
     async def check_session(self, session_id: str) -> bool:
         async with self.database_service.instance.acquire() as connection:
-            return True
+            sql: str = '''
+            SELECT EXISTS (SELECT 1 from session where session_id = '{session_id}');'''.format(session_id=session_id)
+
+            has_session_result = await connection.execute(sql)
+
+            if has_session_result:
+                return True
+
+            return False
 
     async def delete_session_by_id(self, session_id: str):
         await self.check_session(session_id)

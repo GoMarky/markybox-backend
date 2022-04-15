@@ -32,6 +32,10 @@ class CreateNoteHandler(RouteHandler):
             return self.router_service.send_bad_request_response(self.name, error.message)
 
     async def do_handle(self, body: dict) -> web.Response:
-        result = await self.note_service.create_note(body)
+        note_data = body.get('data')
+        note_title = body.get('title')
+        session_id = body.get('sessionId')
+
+        result = await self.note_service.create_note(session_id, note_title, note_data)
 
         return self.router_service.send_success_response(self.name, result)

@@ -3,6 +3,12 @@ CREATE_NOTE_SCHEMA = {
     "properties": {
         "sessionId": {
             "type": "string"
+        },
+        "data": {
+            "type": "string"
+        },
+        "title": {
+            "type": "string"
         }
     },
     "required": [
