@@ -1,34 +1,27 @@
 from app.platform.router.router_handler import RouteHandler
 from app.platform.log.log_service import LogService
 from aiohttp import web, hdrs
-from app.base.errors import DBRecordNotFoundError
-
-from app.code.session.session_service import SessionService
 from app.platform.router.router_service import RouterService
 
 
-class SessionLogoutHandler(RouteHandler):
-    path = '/session/logout/'
+class DeleteNoteHandler(RouteHandler):
+    path = '/note/delete/'
 
-    def __init__(self, log_service: LogService, session_service: SessionService, router_service: RouterService):
+    def __init__(self, log_service: LogService, router_service: RouterService):
         super().__init__(log_service)
 
-        self.path = SessionLogoutHandler.path
-        self.request_type = hdrs.METH_POST
+        self.path = DeleteNoteHandler.path
+        self.request_type = hdrs.METH_DELETE
 
-        self.session_service = session_service
         self.router_service = router_service
 
-        self.name = 'client.session.logout'
+        self.name = 'client.note.delete'
 
     async def handler(self, request: web.Request) -> web.Response:
-        body: dict = await request.json()
-
-        session_id = body.get('sessionId')
-
         try:
-            await self.session_service.delete_session_by_id(session_id)
+            return await self.do_handle(request)
+        except RuntimeError as error:
+            return self.router_service.send_unexpected_error_response(self.name, "")
 
-            return self.router_service.send_success_response(self.name, 'OK')
-        except DBRecordNotFoundError as error:
-            return self.router_service.send_not_found_response(self.name, error.message)
+    async def do_handle(self, request: web.Request) -> web.Response:
+        return self.router_service.send_success_response(self.name, 'delete')

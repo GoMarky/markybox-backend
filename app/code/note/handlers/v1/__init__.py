@@ -1,10 +1,10 @@
-from app.code.session.handlers.v1.session_info_handler import SessionInfoHandler
-from app.code.session.handlers.v1.session_login_handler import SessionLoginHandler
-from app.code.session.handlers.v1.session_logout_handler import SessionLogoutHandler
+from app.code.note.handlers.v1.create_note_handler import CreateNoteHandler
+from app.code.note.handlers.v1.delete_note_handler import DeleteNoteHandler
+from app.code.note.handlers.v1.update_note_handler import UpdateNoteHandler
 
-__all__ = ['session_routes']
+__all__ = ['note_routes']
 
-session_routes = [SessionLoginHandler, SessionInfoHandler, SessionLogoutHandler]
+note_routes = [CreateNoteHandler, UpdateNoteHandler, DeleteNoteHandler]
 
-for route in session_routes:
+for route in note_routes:
     route.path = '/v1' + route.path

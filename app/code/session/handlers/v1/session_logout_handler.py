@@ -14,7 +14,7 @@ class SessionLogoutHandler(RouteHandler):
         super().__init__(log_service)
 
         self.path = SessionLogoutHandler.path
-        self.request_type = hdrs.METH_POST
+        self.request_type = hdrs.METH_DELETE
 
         self.session_service = session_service
         self.router_service = router_service

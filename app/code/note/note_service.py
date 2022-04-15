@@ -8,7 +8,7 @@ class NoteService(Disposable):
         self.database_service = database_service
 
     async def create_note(self, request: web.Request, options: dict):
-        async with request.app['db'].acquire() as conn:
+        async with request.app['db'].acquire() as connection:
             return
 
     async def update_note(self, session_id: str):

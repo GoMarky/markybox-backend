@@ -34,24 +34,24 @@ class SessionInfoHandler(RouteHandler):
     async def do_handle(self, request, session_id) -> web.Response:
         async with request.app['db'].acquire() as connection:
             sql: str = '''
-            select session_id, user, email, 
+            select session_id, user_name, email, 
             array_agg(ARRAY[notes.title, notes.notes,notes.created_at::text,notes.updated_at::text]) AS user_notes
             from session, users, notes 
             where users.user_id=session.user_id AND users.user_id=notes.user_id AND session_id='{session_id}'
-            group by session.session_id, users.email;
+            group by session.session_id, users.email, users.user_name;
             '''.format(session_id=session_id)
 
             result = await connection.execute(sql)
 
             if result.rowcount == 0:
-                return self.router_service.send_not_found_response(self.name, "")
+                return self.router_service.send_not_found_response(self.name,
+                                                                   "User with session_id " + session_id + ' not found')
 
             arr = [dict(row) for row in result]
             user_notes = []
             body: dict = arr.pop()
             raw_notes = body.get('user_notes')
-
-            print(body)
+            user_name = body.pop('user_name')
 
             for note in raw_notes:
                 user_note = dict()
@@ -69,6 +69,7 @@ class SessionInfoHandler(RouteHandler):
                 user_notes.append(user_note)
 
             body['notes'] = user_notes
+            body['user'] = user_name
             body.pop('user_notes')
 
             return self.router_service.send_success_response(self.name, body)
