@@ -48,5 +48,5 @@ services.set('session_service', session_service)
 socket_service = SocketService(database_service)
 services.set('socket_service', socket_service)
 
-note_service = NoteService(database_service)
+note_service = NoteService(database_service, session_service)
 services.set('note_service', note_service)
