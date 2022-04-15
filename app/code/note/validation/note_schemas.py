@@ -1,16 +1,33 @@
 CREATE_NOTE_SCHEMA = {
     "type": "object",
-    "properties": {},
-    "required": [],
+    "properties": {
+        "sessionId": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "sessionId"
+    ],
     "additionalProperties": False
 }
 
 UPDATE_NOTE_SCHEMA = {
     "type": "object",
     "properties": {
+        "sessionId": {
+            "type": "string"
+        },
+        "noteId": {
+            "type": "string"
+        },
+        "data": {
+            "type": "string"
+        }
     },
     "required": [
-
+        "sessionId",
+        "noteId",
+        "data"
     ],
     "additionalProperties": False
 }
@@ -18,8 +35,16 @@ UPDATE_NOTE_SCHEMA = {
 DELETE_NOTE_SCHEMA = {
     "type": "object",
     "properties": {
+        "sessionId": {
+            "type": "string"
+        },
+        "noteId": {
+            "type": "string"
+        }
     },
     "required": [
+        "sessionId",
+        "noteId",
     ],
     "additionalProperties": False
 }

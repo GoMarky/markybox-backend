@@ -11,6 +11,7 @@ from app.code.session.session_service import SessionService
 from app.platform.database.database_service import DatabaseService
 
 from app.code.socket.socket_service import SocketService
+from app.code.note.note_service import NoteService
 
 __all__ = ['instantiation_service']
 
@@ -46,3 +47,6 @@ services.set('session_service', session_service)
 
 socket_service = SocketService(database_service)
 services.set('socket_service', socket_service)
+
+note_service = NoteService(database_service)
+services.set('note_service', note_service)

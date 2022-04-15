@@ -1,9 +1,6 @@
 from app.platform.router.router_handler import RouteHandler
 from app.platform.log.log_service import LogService
 from aiohttp import web, hdrs
-from app.platform.router.common import send_unexpected_error_response, send_not_found_response
-
-from app.db import users
 from app.code.session.session_service import SessionService
 from app.platform.router.router_service import RouterService
 
