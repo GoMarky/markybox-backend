@@ -12,7 +12,7 @@ alter table notes add column updated_at timestamp;
 
 --Добавление записи в notes с указанным user_id
 insert into notes (user_id, title, note_data)
-values (3,'','privetik');
+values (3,'','privetik') RETURNING note_id;
 
 --Удаление записи из notes по указанному note_id
 delete from notes
