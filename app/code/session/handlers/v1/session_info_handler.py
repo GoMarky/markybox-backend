@@ -33,8 +33,6 @@ class SessionInfoHandler(RouteHandler):
         try:
             result = await self.session_service.get_session_by_id(session_id)
 
-            print(result)
-
             return self.router_service.send_success_response(self.name, result)
         except DBRecordNotFoundError as error:
             return self.router_service.send_not_found_response(self.name, error.message)
