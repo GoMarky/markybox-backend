@@ -35,6 +35,6 @@ def send_bad_request_response(request_name: str, error_message: str = 'Bad reque
 def send_unexpected_error_response(request_name: str, additional_text: str = '') -> web.Response:
     return web.json_response({
         'request': request_name,
-        'code': APIErrorCode.UnexpectedError.value[0],
+        'code': 25,
         'message': 'Unexpected error. ' + additional_text
-    }, status=HTTPStatusCode.INTERNAL_SERVER_ERROR.value[0])
+    }, status=500)

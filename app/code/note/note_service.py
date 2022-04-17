@@ -8,8 +8,8 @@ class NoteService(Disposable):
         self.database_service = database_service
         self.session_service = session_service
 
-    async def create_note(self, session_id: str, note_title: str, note_data: str):
-        await self.session_service.check_session(session_id)
+    async def create_note(self, session_id: str, note_title: str = 'unnamed', note_data: str = ''):
+        await self.session_service.get_session_by_id(session_id)
 
         user_id = 1
 
@@ -42,5 +42,8 @@ class NoteService(Disposable):
         await self.session_service.check_session(session_id)
 
         async with self.database_service.instance.acquire() as connection:
-            print(note_id)
-            return
+            sql: str = '''
+            delete from notes
+            where note_id='{note_id}';'''.format(note_id=note_id)
+
+            await connection.execute(sql)
