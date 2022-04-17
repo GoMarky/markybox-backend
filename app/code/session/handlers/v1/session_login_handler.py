@@ -37,5 +37,5 @@ class SessionLoginHandler(RouteHandler):
             return self.router_service.send_bad_request_response(self.name, error.message)
         except DBRecordNotFoundError as error:
             return self.router_service.send_not_found_response(self.name, error.message)
-
-        return self.router_service.send_unexpected_error_response(self.name, 'Unexpected error')
+        except Exception as _:
+            return self.router_service.send_unexpected_error_response(self.name, 'Unexpected error')
