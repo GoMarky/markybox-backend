@@ -61,12 +61,10 @@ class SessionService(Disposable):
     async def get_session_by_id(self, session_id: str):
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-                        select session_id, user_name, email, 
-                        array_agg(ARRAY[notes.note_id::text, notes.title, notes.note_data,notes.created_at::text,notes.updated_at::text]) AS user_notes
-                        from session, users, notes 
-                        where users.user_id=session.user_id AND users.user_id=notes.user_id AND session_id='{session_id}'
-                        group by session.session_id, users.email, users.user_name;
-                        '''.format(session_id=session_id)
+            SELECT session_id, users.user_id, user_name, email
+            FROM session LEFT JOIN users ON session.user_id=users.user_id
+            WHERE session_id='{session_id}';
+                                    '''.format(session_id=session_id)
 
             get_session_result = await connection.execute(sql)
 
@@ -74,36 +72,14 @@ class SessionService(Disposable):
                 raise DBRecordNotFoundError("session_id with " + session_id + " not found")
 
             arr = [dict(row) for row in get_session_result]
-            user_notes = []
             body: dict = arr.pop()
 
             session_uuid = body.pop('session_id')
             session_uuid = str(session_uuid)
-
-            raw_notes = body.get('user_notes')
             user_name = body.pop('user_name')
 
-            for note in raw_notes:
-                user_note = dict()
-
-                note_id = note[0]
-                title = note[1]
-                data = note[2]
-                created_at = note[3]
-                updated_at = note[4]
-
-                user_note['id'] = note_id
-                user_note['title'] = title
-                user_note['data'] = data
-                user_note['createdAt'] = created_at
-                user_note['updatedAt'] = updated_at
-
-                user_notes.append(user_note)
-
             body['session_id'] = session_uuid
-            body['notes'] = user_notes
             body['user'] = user_name
-            body.pop('user_notes')
 
             return body
 

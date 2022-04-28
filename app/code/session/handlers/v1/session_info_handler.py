@@ -26,7 +26,8 @@ class SessionInfoHandler(RouteHandler):
             session_id: str = body.get('sessionId')
 
             return await self.do_handle(session_id)
-        except RuntimeError as error:
+        except Exception as error:
+            print(error)
             return self.router_service.send_unexpected_error_response(self.name, "")
 
     async def do_handle(self, session_id: str) -> web.Response:
