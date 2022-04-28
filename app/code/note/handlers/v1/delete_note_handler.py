@@ -15,7 +15,7 @@ class DeleteNoteHandler(RouteHandler):
         super().__init__(log_service)
 
         self.path = DeleteNoteHandler.path
-        self.request_type = hdrs.METH_DELETE
+        self.request_type = hdrs.METH_POST
 
         self.router_service = router_service
         self.note_service = note_service
@@ -36,4 +36,6 @@ class DeleteNoteHandler(RouteHandler):
         session_id = body.get('sessionId')
         note_id = body.get('noteId')
 
-        return await self.note_service.delete_note(session_id, note_id)
+        await self.note_service.delete_note(session_id, note_id)
+
+        return self.router_service.send_success_response(self.name, 'deleted')
