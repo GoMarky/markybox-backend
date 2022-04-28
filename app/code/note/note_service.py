@@ -13,7 +13,6 @@ class NoteService(Disposable):
     def transform_note(self, note: dict) -> dict:
         user_note = dict()
 
-
         note_id = note.get('note_id')
         title = note.get('title')
         data = note.get('note_data')
@@ -32,7 +31,19 @@ class NoteService(Disposable):
         await self.session_service.get_session_by_id(session_id)
 
         async with self.database_service.instance.acquire() as connection:
-            sql: str = ''''''
+            sql: str = '''
+                SELECT note_id, note_data from notes
+                WHERE note_id='{note_id}';
+                '''.format(note_id=note_id)
+
+            note_result = await connection.execute(sql)
+
+            if note_result.rowcount == 0:
+                return None
+
+            note = [dict(row) for row in note_result].pop()
+
+            return self.transform_note(note)
 
     async def get_notes_by_session_id(self, session_id: str):
         user = await self.session_service.get_session_by_id(session_id)

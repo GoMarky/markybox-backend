@@ -38,4 +38,4 @@ class GetNoteByIdHandler(RouteHandler):
         if result is None:
             return self.router_service.send_not_found_response(self.name, 'notes note found')
 
-        return self.router_service.send_success_response(self.name, {'notes': result})
+        return self.router_service.send_success_response(self.name, {'note': result})
