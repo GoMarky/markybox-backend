@@ -22,3 +22,7 @@ where note_id='b47e7501-25fc-483a-92f9-dd59881f5790';
 UPDATE notes 
 	SET note_data = 'privetik' 
 	WHERE note_id = 'cd7e9be4-573f-40e2-a333-249f060d1e7d'; 
+
+--Получение одной записи по ноут_айди 
+SELECT note_id, note_data from notes
+WHERE note_id='2b9def28-c6db-4f51-9203-3d4b6fdc087c';
