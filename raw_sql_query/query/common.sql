@@ -16,4 +16,14 @@ SELECT session_id, user_name, email,
                         GROUP BY session.session_id, users.email, users.user_name;
 
 
-						
+
+
+SELECT session_id, users.user_id, user_name, email
+                        FROM session LEFT JOIN users ON session.user_id=users.user_id
+                        WHERE session_id='b94cdc7d-12e2-4aa1-93cc-54ae6738c850';
+
+
+SELECT notes.user_id, notes.note_id, notes.title, notes.note_data, notes.created_at, notes.updated_at
+                        FROM notes
+                        WHERE notes.user_id='3' 
+                        ORDER BY notes.updated_at DESC;
