@@ -2,6 +2,7 @@ from app.platform.instantiation.disposable import Disposable
 from app.platform.database.database_service import DatabaseService
 from app.code.session.session_service import SessionService
 from uuid import UUID
+from app.base.date import dt_converter
 
 
 class NoteService(Disposable):
@@ -9,8 +10,29 @@ class NoteService(Disposable):
         self.database_service = database_service
         self.session_service = session_service
 
-    async def get_note_by_id(self, note_id: str):
-        return
+    def transform_note(self, note: dict) -> dict:
+        user_note = dict()
+
+
+        note_id = note.get('note_id')
+        title = note.get('title')
+        data = note.get('note_data')
+        created_at = note.get('created_at')
+        updated_at = note.get('updated_at')
+
+        user_note['id'] = note_id.__str__()
+        user_note['title'] = title
+        user_note['data'] = data
+        user_note['createdAt'] = dt_converter(created_at)
+        user_note['updatedAt'] = dt_converter(updated_at)
+
+        return user_note
+
+    async def get_note_by_id(self, session_id: str, note_id: str):
+        await self.session_service.get_session_by_id(session_id)
+
+        async with self.database_service.instance.acquire() as connection:
+            sql: str = ''''''
 
     async def get_notes_by_session_id(self, session_id: str):
         user = await self.session_service.get_session_by_id(session_id)
@@ -18,16 +40,23 @@ class NoteService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-            SELECT users.user_id, notes.note_id, notes.title, notes.note_data, notes.created_at, notes.updated_at
-            FROM users LEFT JOIN notes ON users.user_id=notes.user_id
-            WHERE users.user_id='{user_id}' AND notes.note_data IS NOT NULL
-            ORDER BY notes.updated_at DESC;'''.format(user_id=user_id)
+            SELECT notes.user_id, notes.note_id, notes.title, notes.note_data, notes.created_at, notes.updated_at
+            FROM notes
+            WHERE notes.user_id='{user_id}' 
+            ORDER BY notes.updated_at DESC'''.format(user_id=user_id)
 
             notes_result = await connection.execute(sql)
 
-            note_body = [dict(row) for row in notes_result].pop()
+            if notes_result.rowcount == 0:
+                return None
 
-            print(note_body)
+            raw_notes = [dict(row) for row in notes_result]
+            notes = []
+
+            for note in raw_notes:
+                notes.append(self.transform_note(note))
+
+            return notes
 
     async def create_note(self, session_id: str, note_title: str = 'unnamed', note_data: str = ''):
         user = await self.session_service.get_session_by_id(session_id)
