@@ -80,8 +80,6 @@ class NoteService(Disposable):
             user_id = user.get('user_id')
 
         async with self.database_service.instance.acquire() as connection:
-            sql: str = ''
-
             if user_id:
                 sql = '''
             insert into notes (user_id, title, note_data)

@@ -3,8 +3,8 @@ from app.platform.log.log_service import LogService
 from aiohttp import web, hdrs
 from app.platform.router.router_service import RouterService
 from app.code.note.note_service import NoteService
-from app.code.note.validation.note_schemas import CREATE_NOTE_SCHEMA
 from jsonschema import validate, ValidationError
+from app.code.note.validation.note_schemas import GET_ALL_NOTES_SCHEMA
 
 
 class GetAllNotesHandler(RouteHandler):
@@ -25,6 +25,8 @@ class GetAllNotesHandler(RouteHandler):
         try:
             body = await request.json()
 
+            validate(body, GET_ALL_NOTES_SCHEMA)
+
             return await self.do_handle(body)
         except ValidationError as error:
             return self.router_service.send_bad_request_response(self.name, error.message)
@@ -35,6 +37,6 @@ class GetAllNotesHandler(RouteHandler):
         result = await self.note_service.get_notes_by_session_id(session_id)
 
         if result is None:
-            return self.router_service.send_not_found_response(self.name, 'notes note found')
+            return self.router_service.send_not_found_response(self.name, 'Notes not found')
 
         return self.router_service.send_success_response(self.name, {'notes': result})

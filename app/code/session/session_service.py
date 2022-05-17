@@ -9,6 +9,21 @@ class SessionService(Disposable):
         self.database_service = database_service
         self.router_service = router_service
 
+    async def register_user(self, options: dict):
+        user_name = options.get('userName')
+        user_email = options.get('email')
+        user_password = options.get('password')
+
+        normalized_password: str = user_password[::-1]
+
+        async with self.database_service.instance.acquire() as connection:
+            register_user_sql: str = '''
+            INSERT INTO users (user_name,email,password) 
+            VALUES ('{user_name}','{user_email}','{user_password}')
+        '''.format(user_name=user_name, user_email=user_email, user_password=normalized_password)
+
+            await connection.execute(register_user_sql)
+
     async def get_user_by_email_and_password(self, email: str, password: str):
         async with self.database_service.instance.acquire() as connection:
             user_sql: str = '''

@@ -1,4 +1,4 @@
-from aiohttp import web, WSMsgType
+from aiohttp import web
 from app.base.database import init_pg, close_pg
 from configuration import DB_CONFIG
 import aiohttp_cors

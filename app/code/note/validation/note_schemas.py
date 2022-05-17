@@ -14,6 +14,36 @@ CREATE_NOTE_SCHEMA = {
     "additionalProperties": False
 }
 
+GET_NOTE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "sessionId": {
+            "type": "string"
+        },
+        "noteId": {
+            "type": "string"
+        },
+    },
+    "required": [
+        "noteId",
+    ],
+    "additionalProperties": False
+}
+
+GET_ALL_NOTES_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "sessionId": {
+            "type": "string"
+        },
+    },
+    "required": [
+        "sessionId",
+    ],
+    "additionalProperties": False
+}
+
+
 UPDATE_NOTE_SCHEMA = {
     "type": "object",
     "properties": {
