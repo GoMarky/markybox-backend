@@ -11,9 +11,6 @@ CREATE_NOTE_SCHEMA = {
             "type": "string"
         }
     },
-    "required": [
-        "sessionId"
-    ],
     "additionalProperties": False
 }
 
@@ -31,7 +28,6 @@ UPDATE_NOTE_SCHEMA = {
         }
     },
     "required": [
-        "sessionId",
         "noteId",
         "data"
     ],
