@@ -74,8 +74,11 @@ def create_app():
 
     # Configure default CORS settings.
     cors = cors_setup(app, defaults={
-        "http://localhost:8080/": ResourceOptions(),
-        "http://app.gomarky.tech/": ResourceOptions()
+        "*": ResourceOptions(
+            allow_credentials=True,
+            expose_headers="(Access-Control-Allow-Origin: '*')",
+            allow_headers="*",
+        )
     })
 
     # Configure CORS on all routes.
