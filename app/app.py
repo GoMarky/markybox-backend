@@ -72,11 +72,16 @@ def create_app():
     # setup views and router
     setup_routes(app, router_service.routes)
 
+    async def options_handler():
+        return web.HTTPOk
+
+    app.router.add_options('*', options_handler)
+
     # Configure default CORS settings.
     cors = cors_setup(app, defaults={
         "*": ResourceOptions(
             allow_credentials=True,
-            expose_headers="(Access-Control-Allow-Origin: '*')",
+            expose_headers="*",
             allow_headers="*",
         )
     })
