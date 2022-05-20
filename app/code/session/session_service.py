@@ -18,7 +18,7 @@ class SessionService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             register_user_sql: str = '''
-            INSERT INTO users (user_name,email,password) 
+            INSERT INTO markybox.users (user_name,email,password) 
             VALUES ('{user_name}','{user_email}','{user_password}')
         '''.format(user_name=user_name, user_email=user_email, user_password=normalized_password)
 
@@ -27,14 +27,9 @@ class SessionService(Disposable):
     async def get_user_by_email_and_password(self, email: str, password: str):
         async with self.database_service.instance.acquire() as connection:
             user_sql: str = '''
-            select users.user_id, user_name, email, array_agg(ARRAY[
-            notes.note_id::text, 
-            notes.title, 
-            notes.note_data, 
-            notes.created_at::text,
-            notes.updated_at::text]) AS user_notes
-            from users, notes 
-            where users.user_id=notes.user_id AND users.email='{user_email}' AND users.password='{user_password}'
+            select users.user_id, user_name, email
+            from markybox.users
+            where users.email='{user_email}' AND users.password='{user_password}'
             group by users.email, users.user_name, users.user_id;
             '''.format(user_email=email, user_password=password)
 
@@ -59,7 +54,7 @@ class SessionService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             session_sql: str = '''
-            INSERT INTO session (user_id)
+            INSERT INTO markybox.sessions (user_id)
             VALUES ('{user_id}') RETURNING session_id::text;
             '''.format(user_id=user_id)
 
@@ -77,7 +72,7 @@ class SessionService(Disposable):
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
             SELECT session_id, users.user_id, user_name, email
-            FROM session LEFT JOIN users ON session.user_id=users.user_id
+            FROM markybox.sessions LEFT JOIN markybox.users ON sessions.user_id=users.user_id
             WHERE session_id='{session_id}';
                                     '''.format(session_id=session_id)
 
@@ -101,7 +96,7 @@ class SessionService(Disposable):
     async def check_session(self, session_id: str) -> bool:
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-            SELECT EXISTS (SELECT 1 from session where session_id = '{session_id}');'''.format(session_id=session_id)
+            SELECT EXISTS (SELECT 1 from markybox.sessions where session_id = '{session_id}');'''.format(session_id=session_id)
 
             has_session_result = await connection.execute(sql)
 
@@ -114,7 +109,7 @@ class SessionService(Disposable):
         await self.check_session(session_id)
 
         sql: str = '''
-                DELETE FROM session
+                DELETE FROM markybox.sessions
                 WHERE session_id = '{session_id}';'''.format(session_id=session_id)
 
         async with self.database_service.instance.acquire() as connection:

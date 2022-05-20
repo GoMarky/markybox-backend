@@ -53,7 +53,7 @@ class NoteService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-            SELECT notes.user_id, notes.note_id, notes.title, notes.note_data, notes.created_at, notes.updated_at
+            SELECT notes.user_id, notes.note_id, notes.note_title, notes.note_data, notes.created_at, notes.updated_at
             FROM markybox.notes
             WHERE notes.user_id='{user_id}' 
             ORDER BY notes.updated_at DESC'''.format(user_id=user_id)
