@@ -15,7 +15,7 @@ class NoteService(Disposable):
         user_note = dict()
 
         note_id = note.get('note_id')
-        title = note.get('title')
+        title = note.get('note_title')
         data = note.get('note_data')
         created_at = note.get('created_at')
         updated_at = note.get('updated_at')
@@ -34,7 +34,7 @@ class NoteService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-                SELECT note_id, note_data from notes
+                SELECT note_id, note_data from markybox.notes
                 WHERE note_id='{note_id}';
                 '''.format(note_id=note_id)
 
@@ -54,7 +54,7 @@ class NoteService(Disposable):
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
             SELECT notes.user_id, notes.note_id, notes.title, notes.note_data, notes.created_at, notes.updated_at
-            FROM notes
+            FROM markybox.notes
             WHERE notes.user_id='{user_id}' 
             ORDER BY notes.updated_at DESC'''.format(user_id=user_id)
 
@@ -82,13 +82,13 @@ class NoteService(Disposable):
         async with self.database_service.instance.acquire() as connection:
             if user_id:
                 sql = '''
-            insert into notes (user_id, title, note_data)
+            insert into markybox.notes (user_id, note_title, note_data)
             values ('{user_id}', '{note_title}','{note_data}')
             RETURNING NOTE_ID;'''.format(user_id=user_id, note_title=note_title,
                                          note_data=note_data)
             else:
                 sql = '''
-            insert into notes (title, note_data)
+            insert into markybox.notes (note_title, note_data)
             values ('{note_title}','{note_data}')
             RETURNING NOTE_ID;'''.format(note_title=note_title,
                                          note_data=note_data)
@@ -109,7 +109,7 @@ class NoteService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-            UPDATE notes 
+            UPDATE markybox.notes 
             SET note_data = $${note_data}$$ 
             WHERE note_id = $${note_id}$$;'''.format(note_id=note_id, note_data=note_data)
 
@@ -120,7 +120,7 @@ class NoteService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-            delete from notes
+            delete from markybox.notes
             where note_id='{note_id}';'''.format(note_id=note_id)
 
             await connection.execute(sql)
