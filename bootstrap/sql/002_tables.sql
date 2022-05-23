@@ -48,3 +48,15 @@ CREATE OR REPLACE FUNCTION update_updated_at_column()
 CREATE TRIGGER update_updated_at_modtime BEFORE UPDATE
   ON markybox.notes FOR EACH ROW EXECUTE PROCEDURE
   update_updated_at_column();
+
+
+ALTER TABLE markybox.users 
+  ADD COLUMN preferred_lang TEXT NOT NULL DEFAULT 'plain'
+  CHECK ((preferred_lang ='cpp') OR (preferred_lang ='python') OR (preferred_lang ='js') OR (preferred_lang ='json') OR (preferred_lang ='plain'));
+
+ALTER TABLE markybox.users 
+  ADD COLUMN current_theme TEXT NOT NULL DEFAULT 'dark' 
+  CHECK ((current_theme ='dark') OR (current_theme='light'));
+
+INSERT INTO markybox.users (user_name, email, password)
+   VALUES ('andreus', 'teodorus@gmail.com', 'Tardam');

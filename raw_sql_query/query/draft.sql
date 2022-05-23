@@ -13,3 +13,5 @@ SELECT session_id, user_name, email,
                         GROUP BY session.session_id, users.email, users.user_name;
 
 
+ALTER TABLE table-name
+  RENAME COLUMN old-name TO new-name;

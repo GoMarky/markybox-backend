@@ -12,3 +12,6 @@ INSERT INTO users (name,email,age)
 VALUES ('Tanya','tanman@gmail.com',26),
  ('Andrew','and@gmail.com',27),
  ('Ivan','iva@gmail.com',29);
+
+
+ 

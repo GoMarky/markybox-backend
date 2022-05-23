@@ -42,3 +42,5 @@ INSERT INTO mydb.mydb.session (user_id)
 VALUES (2) RETURNING session_id;
 
 
+Delete from session
+Where user_id=1;
