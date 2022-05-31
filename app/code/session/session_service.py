@@ -24,7 +24,7 @@ class SessionService(Disposable):
 
             await connection.execute(register_user_sql)
 
-            return await self.get_user_by_email_and_password(user_email, normalized_passwordGIT )
+            return await self.get_user_by_email_and_password(user_email, normalized_password)
 
     async def get_user_by_email_and_password(self, email: str, password: str):
         async with self.database_service.instance.acquire() as connection:

@@ -3,7 +3,6 @@ from app.platform.database.database_service import DatabaseService
 from app.code.session.session_service import SessionService
 from uuid import UUID
 from app.base.date import dt_converter
-from app.base.errors import DBRecordNotFoundError
 
 
 class NoteService(Disposable):
@@ -19,12 +18,14 @@ class NoteService(Disposable):
         data = note.get('note_data')
         created_at = note.get('created_at')
         updated_at = note.get('updated_at')
+        note_lang = note.get('note_lang')
 
         user_note['id'] = note_id.__str__()
         user_note['title'] = title
         user_note['data'] = data
         user_note['createdAt'] = dt_converter(created_at)
         user_note['updatedAt'] = dt_converter(updated_at)
+        user_note['lang'] = note_lang
 
         return user_note
 
@@ -34,7 +35,7 @@ class NoteService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-                SELECT note_id, note_data from markybox.notes
+                SELECT note_id, note_data, note_lang from markybox.notes
                 WHERE note_id='{note_id}';
                 '''.format(note_id=note_id)
 
@@ -53,7 +54,14 @@ class NoteService(Disposable):
 
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-            SELECT notes.user_id, notes.note_id, notes.note_title, notes.note_data, notes.created_at, notes.updated_at
+            SELECT 
+            notes.user_id, 
+            notes.note_id, 
+            notes.note_title, 
+            notes.note_data, 
+            notes.created_at, 
+            notes.updated_at, 
+            notes.note_lang
             FROM markybox.notes
             WHERE notes.user_id='{user_id}' 
             ORDER BY notes.updated_at DESC'''.format(user_id=user_id)
@@ -103,17 +111,25 @@ class NoteService(Disposable):
                 'id': note_id,
             }
 
-    async def update_note(self, session_id: str, note_id: str, note_data: str):
+    async def update_note(self, session_id: str, note_id: str, note_data: str, note_lang: str):
         if session_id:
             await self.session_service.check_session(session_id)
 
         async with self.database_service.instance.acquire() as connection:
-            sql: str = '''
+            note_data_sql: str = '''
             UPDATE markybox.notes 
             SET note_data = $${note_data}$$ 
             WHERE note_id = $${note_id}$$;'''.format(note_id=note_id, note_data=note_data)
 
-            await connection.execute(sql)
+            await connection.execute(note_data_sql)
+
+            if note_lang:
+                note_lang_sql: str = '''
+                UPDATE markybox.notes 
+                SET note_lang = $${note_lang}$$ 
+                WHERE note_id = $${note_id}$$;'''.format(note_id=note_id, note_lang=note_lang)
+
+                await connection.execute(note_lang_sql)
 
     async def delete_note(self, session_id: str, note_id: str):
         await self.session_service.check_session(session_id)

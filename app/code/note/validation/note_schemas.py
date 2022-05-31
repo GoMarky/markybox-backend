@@ -43,7 +43,6 @@ GET_ALL_NOTES_SCHEMA = {
     "additionalProperties": False
 }
 
-
 UPDATE_NOTE_SCHEMA = {
     "type": "object",
     "properties": {
@@ -54,6 +53,9 @@ UPDATE_NOTE_SCHEMA = {
             "type": "string"
         },
         "data": {
+            "type": "string"
+        },
+        "lang": {
             "type": "string"
         }
     },

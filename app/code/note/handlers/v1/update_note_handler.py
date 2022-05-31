@@ -35,7 +35,8 @@ class UpdateNoteHandler(RouteHandler):
         note_id: str = body.get('noteId')
         note_data: str = body.get('data')
         session_id: str = body.get('sessionId')
+        note_lang: str = body.get('lang')
 
-        note_result = await self.note_service.update_note(session_id, note_id, note_data)
+        note_result = await self.note_service.update_note(session_id, note_id, note_data, note_lang)
 
         return self.router_service.send_success_response(self.name, note_result)
