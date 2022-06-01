@@ -9,12 +9,26 @@ class SocketService(Disposable):
 
         self.rooms = {}
 
+    async def send_all(self, user_name: str, note_id: str, message: dict):
+        room_set = self.rooms.get(note_id)
+
+        position = message.get('position')
+
+        response = dict()
+        response['type'] = 'editor_action'
+        response['data'] = {
+            'user_name': user_name,
+            'position': position
+        }
+
+        for room_client in room_set:
+            conn = room_client[1]
+            await conn.send_json(response)
+
     def get_client_by_connection(self, ws: web.WebSocketResponse):
         for room_id, room_set in self.rooms.items():
             for client in room_set:
                 connection = client[1]
-
-                print(client)
 
                 if ws == connection:
                     return room_id, client

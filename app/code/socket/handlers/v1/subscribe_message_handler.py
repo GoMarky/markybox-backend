@@ -48,6 +48,8 @@ class SubscribeMessageHandler(RouteHandler):
             return await self.socket_service.on_create_or_enter_room(ws, user_name, note_id)
         if command_type == 'leave_room':
             return await self.socket_service.leave_room(ws)
+        if command_type == 'editor_action':
+            return await self.socket_service.send_all(user_name, note_id, message)
 
         return await ws.send_json(
             {'type': 'error', 'data': {'message': 'Unrecognized command_type received ' + command_type}})
