@@ -27,8 +27,7 @@ class SessionInfoHandler(RouteHandler):
 
             return await self.do_handle(session_id)
         except Exception as error:
-            print(error)
-            return self.router_service.send_unexpected_error_response(self.name, "")
+            return self.router_service.send_unexpected_error_response(self.name, error.__str__())
 
     async def do_handle(self, session_id: str) -> web.Response:
         try:

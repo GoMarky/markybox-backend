@@ -31,6 +31,8 @@ class DeleteNoteHandler(RouteHandler):
             return await self.do_handle(body)
         except DBRecordNotFoundError as error:
             return self.router_service.send_unexpected_error_response(self.name, error.message)
+        except Exception as error:
+            return self.router_service.send_unexpected_error_response(self.name, error.__str__())
 
     async def do_handle(self, body: dict) -> web.Response:
         session_id = body.get('sessionId')
