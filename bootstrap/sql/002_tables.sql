@@ -11,7 +11,7 @@ CREATE TABLE if not exists markybox.users(
   email          TEXT         NOT NULL unique,
   password       TEXT         NOT NULL,
   current_theme  TEXT         NOT NULL DEFAULT 'dark' CHECK ((current_theme ='dark') OR (current_theme='light')),
-  preferred_lang TEXT         NOT NULL DEFAULT 'plain' CHECK ((preferred_lang ='cpp') OR (preferred_lang ='python') OR (preferred_lang ='js') OR (preferred_lang ='json') OR (preferred_lang ='plain')),
+  preferred_lang TEXT         NOT NULL DEFAULT 'plain' CHECK ((preferred_lang ='cpp') OR (preferred_lang ='python') OR (preferred_lang ='js') OR (preferred_lang ='json') OR (preferred_lang ='plain') OR (preferred_lang ='golang')),
   created_at     TIMESTAMP    without time zone default now()
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE if not exists markybox.notes(
   note_id      uuid         default uuid_generate_v4 (),
   note_title   TEXT         default 'Unnamed',
   note_data    TEXT         NOT NULL,
-  note_lang    TEXT         NOT NULL DEFAULT 'plain' CHECK CHECK ((note_lang ='cpp') OR (note_lang ='python') OR (note_lang ='js') OR (note_lang ='json') OR (note_lang ='plain')),
+  note_lang    TEXT         NOT NULL DEFAULT 'plain' CHECK CHECK ((note_lang ='cpp') OR (note_lang ='python') OR (note_lang ='js') OR (note_lang ='json') OR (note_lang ='plain') OR (preferred_lang ='golang')),
   user_id      INTEGER      REFERENCES markybox.users(user_id) ON DELETE CASCADE,
   created_at   TIMESTAMP    default CURRENT_TIMESTAMP,
   updated_at   TIMESTAMP    default CURRENT_TIMESTAMP
@@ -42,19 +42,3 @@ CREATE OR REPLACE FUNCTION update_updated_at_column()
 CREATE TRIGGER update_updated_at_modtime BEFORE UPDATE
   ON markybox.notes FOR EACH ROW EXECUTE PROCEDURE
   update_updated_at_column();
-
-
-ALTER TABLE markybox.notes
-  ADD COLUMN note_lang TEXT NOT NULL DEFAULT 'plain'
-  CHECK ((note_lang ='cpp') OR (note_lang ='python') OR (note_lang ='js') OR (note_lang ='json') OR (note_lang ='plain'));
-
-ALTER TABLE markybox.users 
-  ADD COLUMN preferred_lang TEXT NOT NULL DEFAULT 'plain'
-  CHECK ((preferred_lang ='cpp') OR (preferred_lang ='python') OR (preferred_lang ='js') OR (preferred_lang ='json') OR (preferred_lang ='plain'));
-
-ALTER TABLE markybox.users 
-  ADD COLUMN current_theme TEXT NOT NULL DEFAULT 'dark' 
-  CHECK ((current_theme ='dark') OR (current_theme='light'));
-
-INSERT INTO markybox.users (user_name, email, password)
-   VALUES ('andreus', 'teodorus@gmail.com', 'Tardam');
