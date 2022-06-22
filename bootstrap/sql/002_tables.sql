@@ -5,6 +5,20 @@ create schema if not exists markybox;
 CREATE EXTENSION IF NOT EXISTS"uuid-ossp";
 SELECT uuid_generate_v4();
 
+CREATE TABLE if not exists markybox.workspaces(
+  workspace_id       uuid         default uuid_generate_v4 (),
+  workspace_title    TEXT         NOT NULL,
+  created_at         TIMESTAMP    default CURRENT_TIMESTAMP,
+  updated_at         TIMESTAMP    default CURRENT_TIMESTAMP
+);
+
+CREATE TABLE if not exists markybox.files(
+  file_id            uuid         default uuid_generate_v4(),
+  file_name          TEXT         NOT NULL,
+  file_parent_id     uuid         REFERENCES markybox.workspace_files(file_parent_id) ON DELETE CASCADE,
+  file_type          TEXT         NOT NULL CHECK ((file_type ='file') OR (file_type='directory'))
+);
+
 CREATE TABLE if not exists markybox.users(
   user_id        SERIAL       PRIMARY KEY NOT NULL unique,
   user_name      TEXT         NOT NULL,
