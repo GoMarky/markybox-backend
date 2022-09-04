@@ -29,6 +29,9 @@ class NoteService(Disposable):
 
         return user_note
 
+    async def apply_settings(self, session_id: str, note_id: str, options: dict):
+        print(options)
+
     async def get_note_by_id(self, session_id: str, note_id: str):
         if session_id:
             await self.session_service.get_session_by_id(session_id)

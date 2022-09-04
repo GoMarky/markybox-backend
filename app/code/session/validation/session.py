@@ -15,6 +15,15 @@ CREATE_SESSION_SCHEMA = {
     "additionalProperties": False
 }
 
+SETTINGS_USER_APPLY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "sessionId": {
+            "type": "number"
+        }
+    }
+}
+
 REGISTER_USER_SCHEMA = {
     "type": "object",
     "properties": {
@@ -44,7 +53,7 @@ DELETE_SESSION_SCHEMA = {
         },
     },
     "required": [
-        "id",
+        "sessionId",
     ],
     "additionalProperties": False
 }

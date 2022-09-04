@@ -9,6 +9,9 @@ class SessionService(Disposable):
         self.database_service = database_service
         self.router_service = router_service
 
+    async def apply_settings(self, session_id: int, options: dict):
+        print(options)
+
     async def register_user(self, options: dict):
         user_name = options.get('userName')
         user_email = options.get('email')
@@ -98,7 +101,8 @@ class SessionService(Disposable):
     async def check_session(self, session_id: str) -> bool:
         async with self.database_service.instance.acquire() as connection:
             sql: str = '''
-            SELECT EXISTS (SELECT 1 from markybox.sessions where session_id = '{session_id}');'''.format(session_id=session_id)
+            SELECT EXISTS (SELECT 1 from markybox.sessions where session_id = '{session_id}');'''.format(
+                session_id=session_id)
 
             has_session_result = await connection.execute(sql)
 
