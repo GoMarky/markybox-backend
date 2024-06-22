@@ -39,6 +39,6 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         format='[{asctime}][{levelname}] - {name}: {message}', style='{')
 
-    engine = create_engine(DSN.format(**DB_CONFIG))
+    engine = create_engine(DSN.format(**DB_CONFIG), )
     drop_tables(engine)
     create_tables(engine)

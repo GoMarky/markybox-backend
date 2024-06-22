@@ -99,4 +99,5 @@ def create_app():
 
 def setup_routes(app, routes: List[RouteHandler]):
     for route in routes:
+        print(route.path)
         app.router.add_route(method=route.request_type, path=route.path, handler=route.handler, name=route.name)
